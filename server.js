@@ -3,6 +3,7 @@ const cors = require('cors')
 const app = express();
 const routes = require('./src/auth/routes.js')
 app.use(cors());
+app.use(express.static('./public'));
 app.use(express.json())
 app.use(routes);
 
