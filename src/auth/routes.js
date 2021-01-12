@@ -3,8 +3,7 @@ let router = express.Router();
 let model = require('./models/user-collection.js');
 const basicOath = require('./main-middlewares/basicOath.js')
 const OAuthMiddleware = require('./main-middlewares/oauth.js');
-const { set } = require('mongoose');
-const userCollection = require('./models/user-collection.js');
+
 
 router.use(express.static('./public'));
 
@@ -45,7 +44,7 @@ function oAuthHandler(req, res, next) {
 }
 
 function deleteHandler(req,res,next){
-   res.send(userCollection.delete(req.params.id));
+   res.send(model.delete(req.params.id));
     next();
 }
 
