@@ -1,6 +1,7 @@
 let usersSchema = require('./users-schema')
 let bcrypt = require('bcrypt');
 let jwt = require('jsonwebtoken');
+let SECRET = 'myserverhasfleas';
 class User {
 
     async create(record) {
@@ -12,7 +13,8 @@ class User {
             return await newRecord.save()
         }
         else {
-            return "user is already exitsts";
+            let DBUser = await usersSchema.findOne({ username: record.username })
+            return DBUser;
         }
 
     }
@@ -32,17 +34,25 @@ class User {
 
 
 
-    
-    
-    
+
+
+
     async generateToken(username) {
-        return await jwt.sign({username: username}, SECRET);
+        console.log("inside generate token >>> ", username)
+        let token = await jwt.sign({ username: username }, SECRET);
+        console.log(token)
+        return token
     }
 
 
 
     async getAll() {
         return await usersSchema.find({});
+    }
+
+
+    async delete(_id) {
+        return await usersSchema.findByIdAndDelete(_id)
     }
 }
 

@@ -3,19 +3,19 @@
 const superagent = require('superagent');
 let userCollection = require('../models/user-collection')
 require('dotenv');
+
 // 2. Users are redirected back to your site by GitHub
 // POST https://github.com/login/oauth/access_token
-const tokenUrl = process.env.TOKEN_SERVER;
+const tokenUrl ="https://github.com/login/oauth/access_token"
 const userUrl = 'https://api.github.com/user';
-const CLIENT_ID = process.env.CLIENT_ID;
-const SECRET_ID = process.env.SECRET_ID;
-const API_SERVER = process.env.API_SERVER;
-console.log("teeest")
+const CLIENT_ID = "e7ea836a35e1d3df4679";
+const SECRET_ID = "1d7a9a8db499fc97fd373bc71fdf743cc5eeb4a6";
+const API_SERVER = "http://localhost:3000/oauth";
+console.log("teeest");
 
 
 module.exports = async function (req, res, next) {
     try {
-        console.log("i am inside fun1", req.query)
         let code = await req.query.code;
         console.log('(1) CODE ====== ', code);
         let remoteToken = await exchangeCodeWithToken(code);
@@ -28,26 +28,33 @@ module.exports = async function (req, res, next) {
         req.user = localUser;
         req.token = localToken;
         next();
-    } catch (e) { next(`ERROR: ${e.message}`) }
+    } catch (e) {console.log("hi am an error") }
 
 }
 
 async function exchangeCodeWithToken(code) {
     // tokenUrl
-    console.log("i am inside fun2")
+
     let tokenResponse = await superagent.post(tokenUrl).send({
         code: code,
         client_id: CLIENT_ID,
         client_secret: SECRET_ID,
-        redirect_uri: API_SERVER
+        redirect_uri: API_SERVER,
+        grant_type: 'authorization_code'
     });
-    return tokenResponse.body.access_token;
+    return await tokenResponse.body.access_token;
 }
+
+
+
+
+
+
 
 async function getRemoteUserInfo(token) {
     let userResponse = await superagent.get(userUrl)
         .set('Authorization', `token ${token}`)
-        .set('user-agent', '401d6-app');
+        .set('user-agent', 'express-app');
     let user = userResponse.body;
     return user;
 }
@@ -58,7 +65,9 @@ async function getUser(userObj) {
         password: 'defaultPasswordCuzItIsNotReturnedWithUserInfro'
     };
     let user = await userCollection.create(userRecord);
-    let token = await userCollection.generateToken(user);
+    console.log("the useeeeeeeerrrrrrr issssssssss",user)
+    let token = await userCollection.generateToken(userRecord.username);
+    console.log("the token issssssssss",token);
     return [user, token];
 }
 
