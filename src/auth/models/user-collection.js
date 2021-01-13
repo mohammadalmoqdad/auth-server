@@ -46,6 +46,27 @@ class User {
 
 
 
+
+
+   async authenticateToken(token) {
+        try {
+            let tokenObject = await jwt.verify(token, SECRET);
+            console.log("tokenObject : ", tokenObject);
+            let isInDB = usersSchema.exists(tokenObject);
+            return isInDB ? Promise.resolve(tokenObject) : Promise.reject();
+        } catch(err) {
+            return Promise.reject();
+        }
+    }
+
+
+
+
+
+
+
+
+
     async getAll() {
         return await usersSchema.find({});
     }
