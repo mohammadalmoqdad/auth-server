@@ -5,14 +5,20 @@ let SECRET = 'myserverhasfleas';
 class User {
 
     async create(record) {
+        console.log("before findOnnneeeee11111")
         let findUser = await usersSchema.exists({ username: record.username });
+        console.log("before findOnnneeeee")
         if (!findUser) {
+        console.log("findeeeeed")
+
             // the user is not in the DB so I can add him
             record.password = await bcrypt.hash(record.password, 5);
             let newRecord = new usersSchema(record);
             return await newRecord.save()
         }
         else {
+        console.log("after find oneeeeeeee")
+
             let DBUser = await usersSchema.findOne({ username: record.username })
             return DBUser;
         }
