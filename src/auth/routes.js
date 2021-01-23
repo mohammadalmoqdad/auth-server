@@ -1,6 +1,5 @@
 let express = require('express');
 let router = express.Router();
-let model = require('./models/user-collection.js');
 const basicOath = require('./main-middlewares/basicOath.js')
 const OAuthMiddleware = require('./main-middlewares/oauth.js');
 const userCollection = require('./models/user-collection.js');
@@ -16,22 +15,20 @@ router.delete('/deleteUser/:id', deleteHandler)
 
 
 function signUpHandler(req, res, next) {
-    model.create(req.body).then(result => {
-        userCollection.generateToken(result.username).then(result=>{
-            res.send(result)
+    userCollection.create(req.body).then(result => {
+        userCollection.generateToken(result).then(result => {
+            res.json({ token: result });
             next();
 
         })
     })
-
-
 }
 
 
 
-function signInHandler(req, res, next) {
-    res.cookie("token", req.token )
-    res.status(200).send( req.token)
+function signInHandler(req, res) {
+    res.cookie("token", req.token)
+    res.status(200).send({ token: req.token })
 }
 
 
@@ -39,7 +36,7 @@ function signInHandler(req, res, next) {
 
 
 function getAllUsers(req, res, next) {
-    model.getAll().then(result => {
+    userCollection.getAll().then(result => {
         res.send(result)
         next();
     })
@@ -50,8 +47,7 @@ function getAllUsers(req, res, next) {
 
 
 function oAuthHandler(req, res, next) {
-    console.log("hiiii")
-    res.status(200).send("hiii");
+    res.json({ userinfo: req.user, token: req.token });
     next();
 }
 
@@ -59,8 +55,8 @@ function oAuthHandler(req, res, next) {
 
 
 
-function deleteHandler(req,res,next){
-   res.send(model.delete(req.params.id));
+function deleteHandler(req, res, next) {
+    res.send(userCollection.delete(req.params.id));
     next();
 }
 
