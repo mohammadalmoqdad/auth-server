@@ -10,7 +10,7 @@ class User {
             // the user is not in the DB so I can add him
             record.password = await bcrypt.hash(record.password, 5);
             let newRecord = new usersSchema(record);
-            return await newRecord.save()
+            return await newRecord.save();
         }
         else {
             let DBUser = await usersSchema.findOne({ username: record.username })
@@ -35,11 +35,12 @@ class User {
 
 
 
+    
 
 
-    async generateToken(username) {
-        console.log("inside generate token >>> ", username)
-        let token = await jwt.sign({ username: username }, SECRET);
+    async generateToken(user) {
+        console.log("inside generate token >>> ", user)
+        const token = await jwt.sign({ username: user.username, capabilities: this.capabilities(user)}, SECRET);
         console.log(token)
         return token
     }
@@ -52,7 +53,7 @@ class User {
         try {
             let tokenObject = await jwt.verify(token, SECRET);
             console.log("tokenObject : ", tokenObject);
-            let isInDB = usersSchema.exists(tokenObject);
+            let isInDB = usersSchema.exists(tokenObject.username);
             return isInDB ? Promise.resolve(tokenObject) : Promise.reject();
         } catch(err) {
             return Promise.reject();
@@ -61,7 +62,21 @@ class User {
 
 
 
-
+    capabilities(user) {
+        console.log('capabilities executed');
+        if (user.role === 'admin') {
+          return ['read', 'create', 'update', 'delete'];
+        }
+        if (user.role === 'user') {
+          return ['read'];
+        }
+        if (user.role === 'writer') {
+          return ['read', 'create'];
+        }
+        if (user.role === 'editor') {
+          return ['read', 'create', 'update'];
+        }
+      }
 
 
 

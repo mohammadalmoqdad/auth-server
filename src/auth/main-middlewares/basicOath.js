@@ -12,12 +12,12 @@ router.basicAuth = function (req, res, next) {
     if (authHeader[0] == "Basic") {
         let basic = authHeader.pop();
         let [username, password] = base64.decode(basic).split(':');
-
+// ************************************** the generate token is not working for the sign in (need to send the role in the object) ************************
         console.log(username, "this is ", password)
         userCollection.isUser(username, password).then(result=>{
             console.log(result)
             if(result){
-                userCollection.generateToken(username).then(result=>{
+                userCollection.generateToken({username:username}).then(result=>{
                     req.token = result;
                     next();
                 })

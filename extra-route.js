@@ -1,11 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const bearerMiddleware = require('./src/auth/main-middlewares/bearerAuth.js')
-router.get('/secret', bearerMiddleware, bearerHandler )
+const permissions = require('./src/auth/main-middlewares/authorize');
 
-function bearerHandler(req,res){
-    console.log(req.user);
-    res.status(200).json(req.user);
-}
+
+
+router.get('/secret', bearerMiddleware, (req, res) => {
+    res.json(req.user);
+});
+
+router.get('/read', bearerMiddleware, permissions('read'), (req, res) => {
+    res.status(200).send('ACCESSED!: you can access this route if you have the READ capability!!');
+});
+router.post('/add', bearerMiddleware, permissions('create'), (req, res) => {
+    res.status(200).send('ACCESSED!: you can access this route if you have the CREATE capability!! ');
+});
+router.put('/change', bearerMiddleware, permissions('update'), (req, res) => {
+    res.status(200).send('ACCESSED!: you can access this route if you have the UPDATE capability!!');
+});
+router.delete('/remove', bearerMiddleware, permissions('delete'), (req, res) => {
+    res.status(200).send('ACCESSED!: you can access this route if you have the DELETE capability!!');
+});
+
 
 module.exports = router;
